@@ -94,7 +94,7 @@ public class Modelo {
 
 	}
 	
-	public void crearPerro(String nombre, String raza, String tamano, String color, String dueno)
+	public void crearPerro(String nombre, String raza, int tamano, String color, String dueno)
 			throws ClassNotFoundException, SQLException {
 
 		String sentenciaSQL = "INSERT INTO perros (idPerro, nombrePerro, razaPerro, tamanoPerro, colorPerro, idDuenoFK) VALUES (null, ?, ?, ?, ?, ?)";
@@ -104,7 +104,7 @@ public class Modelo {
 			ps = connection.prepareStatement(sentenciaSQL);
 			ps.setString(1, nombre);
 			ps.setString(2, raza);
-			ps.setString(3, tamano);
+			ps.setInt(3, tamano);
 			ps.setString(4, color);
 			ps.setString(5, dueno);
 			ps.executeUpdate();

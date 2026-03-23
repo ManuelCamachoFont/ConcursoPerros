@@ -61,10 +61,6 @@ public class VistaPrincipal {
 		ventana.setVisible(true);
 	}
 	
-	public static void main(String[] args) {
-		new VistaPrincipal();
-	}
-	
 }
 
 
