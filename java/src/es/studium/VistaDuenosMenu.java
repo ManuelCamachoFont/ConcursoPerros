@@ -10,11 +10,11 @@ import java.awt.Label;
 
 public class VistaDuenosMenu {
 
-	Frame ventana = new Frame("Concurso");
+	Frame ventana = new Frame("Dueños");
 	Label lblTitulo = new Label("Menú - Dueños");
 	Button btnCrear = new Button("Inscribir");
 	Button btnMod = new Button("Modificar");
-	Button btnBorrar = new Button("Borrar");
+	Button btnBorrar = new Button("Eliminar");
 	
 	GridBagLayout gridbag = new GridBagLayout();
 	GridBagConstraints gbc = new GridBagConstraints();

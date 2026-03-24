@@ -15,7 +15,7 @@ import java.awt.TextField;
 
 public class VistaPerroModificar {
 
-	Frame ventana = new Frame("Concurso");
+	Frame ventana = new Frame("Perros");
 	
 	Label lblTitulo = new Label("Modificar perro", Label.CENTER);
 	Choice choPerros = new Choice();
@@ -24,7 +24,7 @@ public class VistaPerroModificar {
 	Label lblRaza = new Label ("Raza");
 	TextField txtRaza = new TextField(20);
 	Label lblTamano = new Label ("Tamaño");
-	TextField txtTamano = new TextField (20);
+	Choice choTamano = new Choice();
 	Label lblColor = new Label ("Color");
 	TextField txtColor = new TextField (20);
 	Label lblDueno = new Label ("Dueño");
@@ -35,7 +35,7 @@ public class VistaPerroModificar {
 	GridBagLayout gridbag = new GridBagLayout();
 	GridBagConstraints gbc = new GridBagConstraints();
 	
-	Dialog diaFeedback = new Dialog(ventana, "Feedback", true);
+	Dialog diaFeedback = new Dialog(ventana, "Aviso", true);
 	Label lblDialogo = new Label("");
 	
 	Color blanco = new Color(255, 255, 255);
@@ -61,6 +61,8 @@ public class VistaPerroModificar {
 		
 		gbc.gridy = 1;
 		choPerros.setFont(Serif);
+		choPerros.setBackground(gris);
+		choPerros.setForeground(blanco);
 		ventana.add(choPerros, gbc);
 		gbc.gridwidth = 1;
 	
@@ -94,10 +96,14 @@ public class VistaPerroModificar {
 		
 		gbc.gridx = 1;
 		gbc.gridy = 4;
-		txtTamano.setFont(Serif);
-		txtTamano.setBackground(gris);
-		txtTamano.setForeground(blanco);
-		ventana.add(txtTamano, gbc);
+		choTamano.setFont(Serif);
+		choTamano.setBackground(gris);
+		choTamano.setForeground(blanco);
+		choTamano.add("-- Seleccione un Tamaño --");
+		choTamano.add("Pequeño");
+		choTamano.add("Mediano");
+		choTamano.add("Grande");
+		ventana.add(choTamano, gbc);
 		
 		gbc.gridx = 0;
 		gbc.gridy = 5;
@@ -119,6 +125,8 @@ public class VistaPerroModificar {
 		gbc.gridx = 1;
 		gbc.gridy = 6;
 		choDuenos.setFont(Serif);
+		choDuenos.setBackground(gris);
+		choDuenos.setForeground(blanco);
 		ventana.add(choDuenos, gbc);
 		
 		gbc.gridx = 0;
@@ -130,6 +138,8 @@ public class VistaPerroModificar {
 		
 		diaFeedback.setLayout(new FlowLayout());
 		diaFeedback.setSize(250, 180);
+		diaFeedback.setBackground(negro);
+		lblDialogo.setForeground(blanco);
 		diaFeedback.add(lblDialogo);
 		diaFeedback.setLocationRelativeTo(null);
 		diaFeedback.setResizable(false);

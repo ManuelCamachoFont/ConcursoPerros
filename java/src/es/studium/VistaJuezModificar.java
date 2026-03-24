@@ -15,7 +15,7 @@ import java.awt.TextField;
 
 public class VistaJuezModificar {
 
-	Frame ventana = new Frame("Concurso");
+	Frame ventana = new Frame("Jueces");
 	
 	Label lblTitulo = new Label("Modificar juez", Label.CENTER);
 	Choice choJueces = new Choice();
@@ -29,7 +29,7 @@ public class VistaJuezModificar {
 	GridBagLayout gridbag = new GridBagLayout();
 	GridBagConstraints gbc = new GridBagConstraints();
 	
-	Dialog diaFeedback = new Dialog(ventana, "Feedback", true);
+	Dialog diaFeedback = new Dialog(ventana, "Aviso", true);
 	Label lblDialogo = new Label("");
 	
 	Color blanco = new Color(255, 255, 255);
@@ -54,6 +54,8 @@ public class VistaJuezModificar {
 		
 		gbc.gridy = 1;
 		choJueces.setFont(Serif);
+		choJueces.setForeground(blanco);
+		choJueces.setBackground(gris);
 		ventana.add(choJueces, gbc);
 		gbc.gridwidth = 1;
 	
@@ -89,6 +91,8 @@ public class VistaJuezModificar {
 		
 		diaFeedback.setLayout(new FlowLayout());
 		diaFeedback.setSize(250, 180);
+		diaFeedback.setForeground(blanco);
+		lblDialogo.setBackground(negro);
 		diaFeedback.add(lblDialogo);
 		diaFeedback.setLocationRelativeTo(null);
 		diaFeedback.setResizable(false);

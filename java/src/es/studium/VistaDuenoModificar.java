@@ -15,7 +15,7 @@ import java.awt.TextField;
 
 public class VistaDuenoModificar {
 
-	Frame ventana = new Frame("Concurso");
+	Frame ventana = new Frame("Dueños");
 	
 	Label lblTitulo = new Label("Modificar dueño", Label.CENTER);
 	Choice choDuenos = new Choice();
@@ -54,6 +54,8 @@ public class VistaDuenoModificar {
 		
 		gbc.gridy = 1;
 		choDuenos.setFont(Serif);
+		choDuenos.setForeground(blanco);
+		choDuenos.setBackground(gris);
 		ventana.add(choDuenos, gbc);
 		gbc.gridwidth = 1;
 	

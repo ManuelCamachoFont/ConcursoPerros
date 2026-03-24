@@ -38,6 +38,7 @@ GRANT DROP ON concursocanino.* TO 'concurso'@'localhost';
 FLUSH PRIVILEGES;
 
 ALTER TABLE perros ADD puntuacionPerro DECIMAL (4,2) AFTER colorPerro;
+ALTER TABLE perros MODIFY tamanoPerro VARCHAR(45) NOT NULL;
 SELECT * FROM perros;
 SELECT * FROM jueces;
 SELECT * from duenos;

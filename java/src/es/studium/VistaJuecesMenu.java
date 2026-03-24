@@ -10,7 +10,7 @@ import java.awt.Label;
 
 public class VistaJuecesMenu {
 
-	Frame ventana = new Frame("Concurso");
+	Frame ventana = new Frame("Jueces");
 	Label lblTitulo = new Label("Menú - Jueces");
 	Button btnMod = new Button("Modificar");
 

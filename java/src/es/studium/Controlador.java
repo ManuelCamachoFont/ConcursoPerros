@@ -85,38 +85,38 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 			}
 			Utilidades.cursorEstandar(vpc.ventana);
 			// Botón crear para crear un Nuevo Perro desde la ventana de creación de Perros
-		} else if (vpc != null && vpc.choDuenos.getSelectedIndex() != 0 && e.getSource().equals(vpc.btnCrear)) {
+		} else if (vpc != null && e.getSource().equals(vpc.btnCrear)) {
 			Utilidades.cursorEspera(vpc.ventana);
 			String nombre = vpc.txtNombre.getText();
 			String raza = vpc.txtRaza.getText();
 			String color = vpc.txtColor.getText();
 			String dueno = vpc.choDuenos.getSelectedItem();
 			String idDueno = dueno.split(" \\| ")[0];
+			String tamano = vpc.choTamano.getSelectedItem();
 			try {
 				if (!m.puedeCrearPerro(Integer.parseInt(idDueno))) {
 					vpc.lblDialogo.setText("Este dueño ya tiene 3 perros registrados");
-				}else {
+				} else if (!nombre.isEmpty() && !raza.isEmpty() && !color.isEmpty()
+						&& vpc.choDuenos.getSelectedIndex() != 0 && vpc.choTamano.getSelectedIndex() != 0) {
 					try {
-					int tamano = Integer.parseInt(vpc.txtTamano.getText());
-					m.crearPerro(nombre, raza, tamano, color, idDueno);
-					vpc.lblDialogo.setText("La operación se ha realizado con éxito");
-					}
-					catch (ClassNotFoundException cnfe) {
+						m.crearPerro(nombre, raza, tamano, color, idDueno);
+						vpc.lblDialogo.setText("La operación se ha realizado con éxito");
+					} catch (ClassNotFoundException cnfe) {
 						vpc.lblDialogo.setText(cnfe.getMessage());
-						
-					} catch (NumberFormatException nfe){
-						vpc.lblDialogo.setText("Introduce un número");
-					}catch (SQLException se) {
+
+					} catch (SQLException se) {
 						vpc.lblDialogo.setText(se.getMessage());
-					} 
+					}
+				} else {
+					vpc.lblDialogo.setText("Por favor, rellene todos los campos");
 				}
-				
+
 			} catch (ClassNotFoundException cnfe) {
 				vpc.lblDialogo.setText(cnfe.getMessage());
-				
-			} catch (NumberFormatException nfe){
-				vpc.lblDialogo.setText("Introduce un número");
-			}catch (SQLException se) {
+
+			} catch (NumberFormatException nfe) {
+				vpc.lblDialogo.setText("Por favor, rellene todos los campos");
+			} catch (SQLException se) {
 				vpc.lblDialogo.setText(se.getMessage());
 			} finally {
 				vpc.diaFeedback.pack();
@@ -168,16 +168,24 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 				Utilidades.cursorEspera(vpmod.ventana);
 				String nombre = vpmod.txtNombre.getText();
 				String raza = vpmod.txtRaza.getText();
-				String tamano = vpmod.txtTamano.getText();
+				String tamano = vpmod.choTamano.getSelectedItem();
 				String color = vpmod.txtColor.getText();
 				String dueno = vpmod.choDuenos.getSelectedItem();
 				String perro = vpmod.choPerros.getSelectedItem();
 				int idDueno = Integer.parseInt(dueno.split(" \\| ")[0]);
 				int idPerro = Integer.parseInt(perro.split(" \\| ")[0]);
-				m.modificarPerro(nombre, raza, tamano, color, idDueno, idPerro);
-				vpmod.lblDialogo.setText("La operación se ha realizado con éxito");
+				if (vpmod.choDuenos.getSelectedIndex() != 0 && vpmod.choPerros.getSelectedIndex() != 0
+						&& vpmod.choTamano.getSelectedIndex() != 0 && !nombre.isEmpty() && !raza.isEmpty()
+						&& !color.isEmpty()) {
+					m.modificarPerro(nombre, raza, tamano, color, idDueno, idPerro);
+					vpmod.lblDialogo.setText("La operación se ha realizado con éxito");
+				} else {
+					vpmod.lblDialogo.setText("Por favor, rellene todos los campos");
+				}
 			} catch (ClassNotFoundException cnfe) {
 				vpmod.lblDialogo.setText(cnfe.getMessage());
+			} catch (NumberFormatException nfe) {
+				vpmod.lblDialogo.setText("Por favor, rellene todos los campos");
 			} catch (SQLException se) {
 				vpmod.lblDialogo.setText(se.getMessage());
 			} finally {
@@ -211,6 +219,12 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 			} catch (SQLException se) {
 				System.err.println(se.getMessage());
 			}
+			vpmod.txtNombre.setText("");
+			vpmod.txtRaza.setText("");
+			vpmod.choTamano.select(0);
+			vpmod.txtColor.setText("");
+			vpmod.choDuenos.select(0);
+			vpmod.choPerros.select(0);
 			Utilidades.cursorEstandar(vpmod.ventana);
 
 			// Botón para acceder al borrado de los perros
@@ -301,9 +315,12 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 			try {
 				if (!m.puedeCrearDueno()) {
 					vdc.lblDialogo.setText("Ya hay 5 dueños registrados, no se pueden añadir más");
-				} else {
+				} else if (!nombre.isEmpty() && !apellidos.isEmpty()){
 					m.crearDueno(nombre, apellidos);
 					vdc.lblDialogo.setText("La operación se ha realizado con éxito");
+				}
+				else {
+					vdc.lblDialogo.setText("Por favor, rellene todos los campos");
 				}
 			} catch (ClassNotFoundException cnfe) {
 				vdc.lblDialogo.setText(cnfe.getMessage());
@@ -352,11 +369,17 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 				String apellidos = vdmod.txtApellidos.getText();
 				String dueno = vdmod.choDuenos.getSelectedItem();
 				int idDueno = Integer.parseInt(dueno.split(" \\| ")[0]);
+				if (!nombre.isEmpty() && !apellidos.isEmpty() && vdmod.choDuenos.getSelectedIndex()!= 0) {
 				m.modificarDueno(nombre, apellidos, idDueno);
-				vdmod.lblDialogo.setText("La modificación de " + dueno + " se ha realizado con éxito");
+				vdmod.lblDialogo.setText("La modificación de " + dueno + " se ha realizado con éxito");}
+				else {
+					vdmod.lblDialogo.setText("Por favor, rellene todos los campos");
+				}
 			} catch (ClassNotFoundException cnfe) {
 				vdmod.lblDialogo.setText(cnfe.getMessage());
-			} catch (SQLException se) {
+			} catch (NumberFormatException nfe) {
+				vdmod.lblDialogo.setText("Por favor, rellene todos los campos");
+			}catch (SQLException se) {
 				vdmod.lblDialogo.setText(se.getMessage());
 			} finally {
 				vdmod.diaFeedback.pack();
@@ -475,11 +498,17 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 				String apellidos = vjmod.txtApellidos.getText();
 				String juez = vjmod.choJueces.getSelectedItem();
 				int idJuez = Integer.parseInt(juez.split(" \\| ")[0]);
+				if (!nombre.isEmpty() && !apellidos.isEmpty() && vjmod.choJueces.getSelectedIndex() != 0) {
 				m.modificarJuez(nombre, apellidos, idJuez);
-				vjmod.lblDialogo.setText("La modificación de " + juez + " se ha realizado con éxito");
+				vjmod.lblDialogo.setText("La modificación de " + juez + " se ha realizado con éxito");}
+				else {
+					vjmod.lblDialogo.setText("Por favor, rellene todos los campos");
+				}
 			} catch (ClassNotFoundException cnfe) {
 				vjmod.lblDialogo.setText(cnfe.getMessage());
-			} catch (SQLException se) {
+			} catch (NumberFormatException nfe) {
+				vjmod.lblDialogo.setText("Por favor, rellene todos los campos");
+			}catch (SQLException se) {
 				vjmod.lblDialogo.setText(se.getMessage());
 			} finally {
 				vjmod.diaFeedback.pack();
@@ -511,25 +540,34 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 			vc = new VistaConcurso();
 			try {
 				perrosConcurso = m.obtenerPerros();
-				String perro = perrosConcurso.get(indicePerro);
-				vc.lblOrden.setText("Perro " + (indicePerro + 1));
-				vc.lblPerro.setText(perro.split(" \\| ")[1].trim());
-				int idDuenoFK = Integer.parseInt(perro.split(" \\| ")[5].trim());
-				String dueno = m.buscarD(idDuenoFK);
-				vc.lblDueno.setText(dueno.split(" \\| ")[1].trim());
-				String juez1 = m.buscarJ(1);
-				String juez2 = m.buscarJ(2);
-				String juez3 = m.buscarJ(3);
-				vc.lblTituloJ1.setText(juez1.split(" \\| ")[1] + " " + juez1.split(" \\| ")[2]);
-				vc.lblTituloJ2.setText(juez2.split(" \\| ")[1] + " " + juez2.split(" \\| ")[2]);
-				vc.lblTituloJ3.setText(juez3.split(" \\| ")[1] + " " + juez3.split(" \\| ")[2]);
-
-				if (indicePerro == perrosConcurso.size() - 1) {
+				if (perrosConcurso.isEmpty()) {
+					vc.lblPerro.setText("No hay perros registrados");
+					vc.lblDueno.setText("");
+					vc.lblOrden.setText("");
+					vc.btnPunt.setEnabled(false);
 					vc.btnSig.setVisible(false);
-					vc.btnFin.setVisible(true);
-				} else {
-					vc.btnSig.setVisible(true);
 					vc.btnFin.setVisible(false);
+				} else {
+					String perro = perrosConcurso.get(indicePerro);
+					vc.lblOrden.setText("Perro " + (indicePerro + 1) + " de " + perrosConcurso.size());
+					vc.lblPerro.setText("Nombre: " + perro.split(" \\| ")[1].trim());
+					int idDuenoFK = Integer.parseInt(perro.split(" \\| ")[5].trim());
+					String dueno = m.buscarD(idDuenoFK);
+					vc.lblDueno.setText("Dueño: " + dueno.split(" \\| ")[1].trim());
+					String juez1 = m.buscarJ(1);
+					String juez2 = m.buscarJ(2);
+					String juez3 = m.buscarJ(3);
+					vc.lblTituloJ1.setText(juez1.split(" \\| ")[1] + " " + juez1.split(" \\| ")[2]);
+					vc.lblTituloJ2.setText(juez2.split(" \\| ")[1] + " " + juez2.split(" \\| ")[2]);
+					vc.lblTituloJ3.setText(juez3.split(" \\| ")[1] + " " + juez3.split(" \\| ")[2]);
+
+					if (indicePerro == perrosConcurso.size() - 1) {
+						vc.btnSig.setVisible(false);
+						vc.btnFin.setVisible(true);
+					} else {
+						vc.btnSig.setVisible(true);
+						vc.btnFin.setVisible(false);
+					}
 				}
 			} catch (ClassNotFoundException cnfe) {
 
@@ -576,8 +614,10 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 					m.puntuarPerro(idPerro, puntuacion);
 					vc.lblDialogo.setText("El Presidente de mesa ha votado con éxito");
 					votadoJ1 = true;
+					vc.diaJ1.dispose();
 				} else if (votadoJ1) {
 					vc.lblDialogo.setText("El Presidente ya ha votado");
+					vc.diaJ1.dispose();
 				} else {
 					vc.lblDialogo.setText("Escriba un número entre el 0 y el 10");
 				}
@@ -606,10 +646,11 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 					m.puntuarPerro(idPerro, puntuacion);
 					vc.lblDialogo.setText("El Adjunto 1 ha votado con éxito");
 					votadoJ2 = true;
+					vc.diaJ2.dispose();
 				} else if (votadoJ2) {
 					vc.lblDialogo.setText("El Adjunto 1 ya ha votado");
-				}
-				else {
+					vc.diaJ2.dispose();
+				} else {
 					vc.lblDialogo.setText("Escriba un número entre el 0 y el 10");
 				}
 			} catch (NumberFormatException nfe) {
@@ -636,8 +677,10 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 					m.puntuarPerro(idPerro, puntuacion);
 					vc.lblDialogo.setText("El Adjunto 1 ha votado con éxito");
 					votadoJ3 = true;
+					vc.diaJ3.dispose();
 				} else if (votadoJ3) {
 					vc.lblDialogo.setText("El Adjunto 1 ya ha votado");
+					vc.diaJ3.dispose();
 				} else {
 					vc.lblDialogo.setText("Escriba un número entre el 0 y el 10");
 				}
@@ -662,11 +705,11 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 				votadoJ3 = false;
 				indicePerro = indicePerro + 1;
 				String perro = perrosConcurso.get(indicePerro);
-				vc.lblOrden.setText("Perro " + (indicePerro + 1));
-				vc.lblPerro.setText(perro.split(" \\| ")[1].trim());
+				vc.lblOrden.setText("Perro " + (indicePerro + 1) + " de " + perrosConcurso.size());
+				vc.lblPerro.setText("Nombre: " + perro.split(" \\| ")[1].trim());
 				int idDuenoFK = Integer.parseInt(perro.split(" \\| ")[5].trim());
 				String dueno = m.buscarD(idDuenoFK);
-				vc.lblDueno.setText(dueno.split(" \\| ")[1].trim());
+				vc.lblDueno.setText("Dueño: " + dueno.split(" \\| ")[1].trim());
 			} catch (ClassNotFoundException cnfe) {
 				System.err.println(cnfe);
 			} catch (SQLException se) {
@@ -689,6 +732,7 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 			vf = new VistaFin();
 			Utilidades.cursorEspera(vf.ventana);
 			vf.ventana.addWindowListener(this);
+			vf.btnReiniciarPunt.addActionListener(this);
 			vf.btnReiniciar.addActionListener(this);
 			Utilidades.aplicarIcono("recursos/iconos/paw.png", vf.ventana);
 			try {
@@ -710,6 +754,7 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 				System.err.println(ex);
 			}
 			Utilidades.cursorBoton(vf.btnReiniciar);
+			Utilidades.cursorBoton(vf.btnReiniciarPunt);
 			Utilidades.cursorEstandar(vf.ventana);
 			vf.ventana.validate();
 			vf.ventana.repaint();
@@ -723,6 +768,21 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 				votadoJ2 = false;
 				votadoJ3 = false;
 				perrosConcurso = null;
+			} catch (ClassNotFoundException cnfe) {
+				System.err.println(cnfe);
+			} catch (SQLException se) {
+				System.err.println(se);
+			}
+		} else if (vf != null && e.getSource().equals(vf.btnReiniciarPunt)) {
+			try {
+				m.reiniciarPuntuaciones();
+				vf.ventana.dispose();
+				indicePerro = 0;
+				puntuacion = 0;
+				votadoJ1 = false;
+				votadoJ2 = false;
+				votadoJ3 = false;
+
 			} catch (ClassNotFoundException cnfe) {
 				System.err.println(cnfe);
 			} catch (SQLException se) {
@@ -762,6 +822,8 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 			vdmod.diaFeedback.dispose();
 		} else if (vdb != null && e.getSource().equals(vdb.ventana)) {
 			vdb.ventana.dispose();
+		} else if (vdb != null && e.getSource().equals(vdb.dialogo)) {
+			vdb.dialogo.dispose();
 		} else if (vdb != null && e.getSource().equals(vdb.diaFeedback)) {
 			vdb.diaFeedback.dispose();
 		} else if (vdc != null && e.getSource().equals(vdc.diaFeedback)) {
@@ -831,7 +893,7 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 			}
 			vpmod.txtNombre.setText(nombre);
 			vpmod.txtRaza.setText(raza);
-			vpmod.txtTamano.setText(tamano);
+			vpmod.choTamano.select(tamano);
 			vpmod.txtColor.setText(color);
 			vpmod.choDuenos.select(dueno);
 			Utilidades.cursorEstandar(vpmod.ventana);

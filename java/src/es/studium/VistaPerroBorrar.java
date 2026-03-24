@@ -13,7 +13,7 @@ import java.awt.Insets;
 import java.awt.Label;
 
 public class VistaPerroBorrar {
-	Frame ventana = new Frame("Concurso");
+	Frame ventana = new Frame("Perros");
 	Label lblTexto = new Label("¿Qué Perro desea eliminar?");
 	Choice choPerros = new Choice();
 	Button btnBorrar = new Button("Eliminar");
@@ -32,6 +32,7 @@ public class VistaPerroBorrar {
 	
 	Color blanco = new Color(255, 255, 255);
 	Color negro = new Color (30, 30, 30);
+	Color gris = new Color (90, 90, 90);
 	Color azul = new Color (80, 80, 255);
 	
 	Font Serif = new Font ("Serif", 0, 16);
@@ -48,6 +49,8 @@ public class VistaPerroBorrar {
 		ventana.add(lblTexto, gbc);
 
 		gbc.gridy = 1;
+		choPerros.setForeground(blanco);
+		choPerros.setBackground(gris);
 		choPerros.setFont(Serif);
 		ventana.add(choPerros, gbc);
 
@@ -99,6 +102,8 @@ public class VistaPerroBorrar {
 		dialogo.setVisible(false);
 
 		diaFeedback.setLayout(new FlowLayout());
+		diaFeedback.setBackground(negro);
+		lblDialogo.setForeground(blanco);
 		diaFeedback.add(lblDialogo);
 		diaFeedback.setSize(300, 80);
 		diaFeedback.setLocationRelativeTo(null);

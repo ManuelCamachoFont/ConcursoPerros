@@ -13,7 +13,7 @@ import java.awt.Insets;
 import java.awt.Label;
 
 public class VistaDuenoBorrar {
-	Frame ventana = new Frame("Concurso");
+	Frame ventana = new Frame("Dueños");
 	Label lblTexto = new Label("¿Qué Dueño desea eliminar?");
 	Choice choDuenos = new Choice();
 	Button btnBorrar = new Button("Eliminar");
@@ -32,6 +32,7 @@ public class VistaDuenoBorrar {
 	
 	Color blanco = new Color(255, 255, 255);
 	Color negro = new Color (30, 30, 30);
+	Color gris = new Color (90, 90, 90);
 	Color azul = new Color (80, 80, 255);
 	
 	Font Serif = new Font ("Serif", 0, 16);
@@ -49,6 +50,8 @@ public class VistaDuenoBorrar {
 
 		gbc.gridy = 1;
 		choDuenos.setFont(Serif);
+		choDuenos.setBackground(gris);
+		choDuenos.setForeground(blanco);
 		ventana.add(choDuenos, gbc);
 
 		gbc.gridy = 2;
@@ -99,6 +102,8 @@ public class VistaDuenoBorrar {
 		dialogo.setVisible(false);
 
 		diaFeedback.setLayout(new FlowLayout());
+		diaFeedback.setBackground(negro);
+		lblDialogo.setForeground(blanco);
 		diaFeedback.add(lblDialogo);
 		diaFeedback.setSize(300, 80);
 		diaFeedback.setLocationRelativeTo(null);

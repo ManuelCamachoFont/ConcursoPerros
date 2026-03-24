@@ -63,6 +63,7 @@ public class VistaConcurso {
 		gbc.gridy = 0;
 		gbc.gridwidth = 2;
 		lblTitulo.setForeground(blanco);
+		lblTitulo.setFont(Utilidades.elegirFuente("fuentes/Merienda.ttf", 3, 16));
 		ventana.add(lblTitulo, gbc);
 		
 		gbc.gridx = 0;

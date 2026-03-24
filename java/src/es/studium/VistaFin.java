@@ -22,6 +22,7 @@ public class VistaFin {
     TextArea txtResultados = new TextArea(15, 70);
     Label lblGanadorTitulo = new Label("Ganador del concurso");
     Label lblGanador = new Label ("");
+    Button btnReiniciarPunt = new Button ("Reiniciar puntuaciones");
     Button btnReiniciar = new Button("Reiniciar concurso");
     
     Image imagen;
@@ -88,9 +89,20 @@ public class VistaFin {
         gbc.gridx = 0;
         gbc.gridy = 4;
         gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.WEST;
+        btnReiniciarPunt.setBackground(azul);
+        btnReiniciarPunt.setForeground(blanco);
+        ventana.add(btnReiniciarPunt, gbc);
+        
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.EAST;
         btnReiniciar.setBackground(azul);
         btnReiniciar.setForeground(blanco);
         ventana.add(btnReiniciar, gbc);
+        
+        
         
         ventana.setLocationRelativeTo(null);
         ventana.setResizable(false);
