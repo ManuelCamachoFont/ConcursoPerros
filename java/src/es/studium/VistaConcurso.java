@@ -24,7 +24,7 @@ public class VistaConcurso {
 	Button btnSig = new Button ("Siguiente");
 	Button btnFin = new Button ("Finalizar");
 	
-	Dialog diaFeedback = new Dialog (ventana, "Feedback", true);
+	Dialog diaFeedback = new Dialog (ventana, "Aviso", true);
 	Label lblDialogo = new Label("");
 	
 	Dialog diaJ1 = new Dialog(ventana, "Presidente de mesa", false);
@@ -32,12 +32,15 @@ public class VistaConcurso {
 	Dialog diaJ3 = new Dialog(ventana, "Segundo Adjunto", false);
 	Dialog diaPunt = new Dialog(ventana, "Puntuación", true);
 	Label lblTituloJ1 = new Label("", Label.CENTER);
+	Label lblVotoJ1 = new Label ("Votación:");
 	TextField txtVotoJ1 = new TextField (10);
 	Button btnPuntJ1 = new Button("Puntuar");
 	Label lblTituloJ2 = new Label("", Label.CENTER);
+	Label lblVotoJ2 = new Label ("Votación:");
 	TextField txtVotoJ2 = new TextField (10);
 	Button btnPuntJ2 = new Button("Puntuar");
 	Label lblTituloJ3 = new Label("", Label.CENTER);
+	Label lblVotoJ3 = new Label ("Votación:");
 	TextField txtVotoJ3 = new TextField (10);
 	Button btnPuntJ3 = new Button("Puntuar");
 	
@@ -112,16 +115,27 @@ public class VistaConcurso {
 		lblTituloJ2.setForeground(blanco);
 		lblTituloJ3.setForeground(blanco);
 		
+		
+		
+		gbc.insets = new Insets (15, 15, 15, 15);
+
 		diaJ2.setLayout(gridbag);
 		diaJ2.setBackground(negro);
 		diaJ2.setSize(230, 230);
 		
 		gbc.gridx = 0;
 		gbc.gridy = 0;
+		gbc.gridwidth = 2;
 		lblTituloJ2.setForeground(blanco);
 		diaJ2.add(lblTituloJ2, gbc);
+		gbc.gridwidth = 1;
 		
 		gbc.gridx = 0;
+		gbc.gridy = 1;
+		lblVotoJ2.setForeground(blanco);
+		diaJ2.add(lblVotoJ2, gbc);
+		
+		gbc.gridx = 1;
 		gbc.gridy = 1;
 		txtVotoJ2.setBackground(gris);
 		txtVotoJ2.setForeground(blanco);
@@ -129,6 +143,7 @@ public class VistaConcurso {
 		
 		gbc.gridx = 0;
 		gbc.gridy = 2;
+		gbc.gridwidth = 2;
 		btnPuntJ2.setBackground(azul);
 		btnPuntJ2.setForeground(blanco);
 		diaJ2.add(btnPuntJ2, gbc);
@@ -138,6 +153,7 @@ public class VistaConcurso {
 		diaJ2.setResizable(false);
 		diaJ2.setLocation(x, y + 300);
 		diaJ2.setVisible(false);
+		gbc.gridwidth = 1;
 		
 		diaJ1.setLayout(gridbag);
 		diaJ1.setBackground(negro);
@@ -146,10 +162,17 @@ public class VistaConcurso {
 		
 		gbc.gridx = 0;
 		gbc.gridy = 0;
+		gbc.gridwidth = 2;
 		lblTituloJ1.setForeground(blanco);
 		diaJ1.add(lblTituloJ1, gbc);
+		gbc.gridwidth = 1;
 		
 		gbc.gridx = 0;
+		gbc.gridy = 1;
+		lblVotoJ1.setForeground(blanco);
+		diaJ1.add(lblVotoJ1, gbc);
+		
+		gbc.gridx = 1;
 		gbc.gridy = 1;
 		txtVotoJ1.setBackground(gris);
 		txtVotoJ1.setForeground(blanco);
@@ -157,12 +180,14 @@ public class VistaConcurso {
 		
 		gbc.gridx = 0;
 		gbc.gridy = 2;
+		gbc.gridwidth = 2;
 		btnPuntJ1.setBackground(azul);
 		btnPuntJ1.setForeground(blanco);
 		diaJ1.add(btnPuntJ1, gbc);
 		diaJ1.setResizable(false);
 		diaJ1.setLocation(x - diaJ2.getWidth() - 10, y + 300);
 		diaJ1.setVisible(false);
+		gbc.gridwidth = 1;
 		
 		diaJ3.setLayout(gridbag);
 		diaJ3.setBackground(negro);
@@ -170,10 +195,17 @@ public class VistaConcurso {
 		
 		gbc.gridx = 0;
 		gbc.gridy = 0;
+		gbc.gridwidth = 2;
 		lblTituloJ3.setForeground(blanco);
 		diaJ3.add(lblTituloJ3, gbc);
+		gbc.gridwidth = 1;
 		
 		gbc.gridx = 0;
+		gbc.gridy = 1;
+		lblVotoJ3.setForeground(blanco);
+		diaJ3.add(lblVotoJ3, gbc);
+		
+		gbc.gridx = 1;
 		gbc.gridy = 1;
 		txtVotoJ3.setBackground(gris);
 		txtVotoJ3.setForeground(blanco);
@@ -181,12 +213,14 @@ public class VistaConcurso {
 		
 		gbc.gridx = 0;
 		gbc.gridy = 2;
+		gbc.gridwidth = 2;
 		btnPuntJ3.setBackground(azul);
 		btnPuntJ3.setForeground(blanco);
 		diaJ3.add(btnPuntJ3, gbc);
 		diaJ3.setResizable(false);
 		diaJ3.setLocation(x + diaJ2.getWidth() + 10, y + 300);
 		diaJ3.setVisible(false);
+		gbc.gridwidth = 1;
 		
 		// Dialogo errores
 		

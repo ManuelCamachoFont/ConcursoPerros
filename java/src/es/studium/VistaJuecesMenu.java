@@ -38,6 +38,9 @@ public class VistaJuecesMenu {
 		ventana.add(btnMod, gbc);
 
 		ventana.setLocationRelativeTo(null);
+		int x = ventana.getLocation().x;
+		int y = ventana.getLocation().y;
+		ventana.setLocation(x + 435, y);
 		ventana.setResizable(false);
 		ventana.setVisible(true);
 	}

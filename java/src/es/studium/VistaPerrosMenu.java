@@ -52,6 +52,9 @@ public class VistaPerrosMenu {
 		ventana.add(btnBorrar, gbc);
 		
 		ventana.setLocationRelativeTo(null);
+		int x = ventana.getLocation().x;
+		int y = ventana.getLocation().y;
+		ventana.setLocation(x + 435, y);
 		ventana.setResizable(false);
 		ventana.setVisible(true);
 	}

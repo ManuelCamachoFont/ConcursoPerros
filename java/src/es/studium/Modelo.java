@@ -1,5 +1,8 @@
 package es.studium;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -21,7 +24,7 @@ public class Modelo {
 	ResultSet rs = null;
 
 	// Conexion
-	
+
 	public Connection conectar() {
 
 		try {
@@ -52,23 +55,23 @@ public class Modelo {
 	}
 
 	// Funciones Perro
-	
+
 	public boolean puedeCrearPerro(int idDueno) throws ClassNotFoundException, SQLException {
-	    String sentenciaSQL = "SELECT COUNT(*) FROM perros WHERE idDuenoFK = ?";
-	    try {
-	        conectar();
-	        ps = connection.prepareStatement(sentenciaSQL);
-	        ps.setInt(1, idDueno);
-	        rs = ps.executeQuery();
-	        if (rs.next()) {
-	            return rs.getInt(1) < 3;
-	        }
-	        return false;
-	    } finally {
-	        desconectar(connection);
-	    }
+		String sentenciaSQL = "SELECT COUNT(*) FROM perros WHERE idDuenoFK = ?";
+		try {
+			conectar();
+			ps = connection.prepareStatement(sentenciaSQL);
+			ps.setInt(1, idDueno);
+			rs = ps.executeQuery();
+			if (rs.next()) {
+				return rs.getInt(1) < 3;
+			}
+			return false;
+		} finally {
+			desconectar(connection);
+		}
 	}
-	
+
 	public List<String> obtenerPerros() throws ClassNotFoundException, SQLException {
 		String sentenciaSQL = "SELECT * FROM perros ORDER BY idPerro";
 		List<String> listaPerros = new ArrayList<>();
@@ -81,7 +84,8 @@ public class Modelo {
 			rs = ps.executeQuery();
 			while (rs.next()) {
 				listaPerros.add(rs.getInt("idPerro") + " | " + rs.getString("nombrePerro") + " | "
-						+ rs.getString("razaPerro") + " | " + rs.getString("tamanoPerro") + " | " + rs.getString("colorPerro") + " | " + rs.getInt("idDuenoFK"));
+						+ rs.getString("razaPerro") + " | " + rs.getString("tamanoPerro") + " | "
+						+ rs.getString("colorPerro") + " | " + rs.getInt("idDuenoFK"));
 			}
 			return listaPerros;
 		}
@@ -93,32 +97,11 @@ public class Modelo {
 		}
 
 	}
-	
-	public void crearPerro(String nombre, String raza, String tamano, String color, String dueno)
-			throws ClassNotFoundException, SQLException {
 
-		String sentenciaSQL = "INSERT INTO perros (idPerro, nombrePerro, razaPerro, tamanoPerro, colorPerro, idDuenoFK) VALUES (null, ?, ?, ?, ?, ?)";
+	public void crearPerro(String nombre, String raza, String tamano, String color, String rutaImagen, String dueno)
+			throws ClassNotFoundException, SQLException, FileNotFoundException {
 
-		try {
-			conectar();
-			ps = connection.prepareStatement(sentenciaSQL);
-			ps.setString(1, nombre);
-			ps.setString(2, raza);
-			ps.setString(3, tamano);
-			ps.setString(4, color);
-			ps.setString(5, dueno);
-			ps.executeUpdate();
-
-		} finally {
-			desconectar(connection);
-		}
-
-	}
-	
-	public void modificarPerro(String nombre, String raza, String tamano, String color, int dueno, int idPerro)
-			throws ClassNotFoundException, SQLException {
-
-		String sentenciaSQL = "UPDATE perros SET nombrePerro = ?, razaPerro = ?, tamanoPerro = ?, colorPerro = ?, idDuenoFK = ? WHERE idPerro = ?";
+		String sentenciaSQL = "INSERT INTO perros (idPerro, nombrePerro, razaPerro, tamanoPerro, colorPerro, imagenPerro, idDuenoFK) VALUES (null, ?, ?, ?, ?, ?, ?)";
 
 		try {
 			conectar();
@@ -127,8 +110,14 @@ public class Modelo {
 			ps.setString(2, raza);
 			ps.setString(3, tamano);
 			ps.setString(4, color);
-			ps.setInt(5, dueno);
-			ps.setInt(6, idPerro);
+			if (rutaImagen != null && !rutaImagen.isEmpty()) {
+				File file = new File(rutaImagen);
+				FileInputStream fis = new FileInputStream(file);
+				ps.setBinaryStream(5, fis, (int) file.length());
+			} else {
+				ps.setNull(5, java.sql.Types.BLOB);
+			}
+			ps.setString(6, dueno);
 			ps.executeUpdate();
 
 		} finally {
@@ -136,25 +125,51 @@ public class Modelo {
 		}
 
 	}
-	
-	
-	public void borrarP (int idPerro) throws ClassNotFoundException, SQLException  {
+
+	public void modificarPerro(String nombre, String raza, String tamano, String color, String rutaImagen, int dueno,
+			int idPerro) throws ClassNotFoundException, SQLException, FileNotFoundException {
+
+		String sentenciaSQL = "UPDATE perros SET nombrePerro = ?, razaPerro = ?, tamanoPerro = ?, colorPerro = ?, imagenPerro = ?, idDuenoFK = ? WHERE idPerro = ?";
+
+		try {
+			conectar();
+			ps = connection.prepareStatement(sentenciaSQL);
+			ps.setString(1, nombre);
+			ps.setString(2, raza);
+			ps.setString(3, tamano);
+			ps.setString(4, color);
+			if (rutaImagen != null && !rutaImagen.isEmpty()) {
+				File file = new File(rutaImagen);
+				FileInputStream fis = new FileInputStream(file);
+				ps.setBinaryStream(5, fis, (int) file.length());
+			} else {
+				ps.setNull(5, java.sql.Types.BLOB);
+			}
+			ps.setInt(6, dueno);
+			ps.setInt(7, idPerro);
+			ps.executeUpdate();
+
+		} finally {
+			desconectar(connection);
+		}
+
+	}
+
+	public void borrarP(int idPerro) throws ClassNotFoundException, SQLException {
 		String sentenciaSQL = "DELETE FROM perros WHERE idPerro = ?";
-		try
-		{	
+		try {
 			conectar();
 			ps = connection.prepareStatement(sentenciaSQL);
 			ps.setInt(1, idPerro);
 			ps.executeUpdate();
 
-		} finally
-		{
+		} finally {
 			desconectar(connection);
 
 		}
 	}
-	
-	public void puntuarPerro (int idPerro, float puntuacion )  throws ClassNotFoundException, SQLException {
+
+	public void puntuarPerro(int idPerro, float puntuacion) throws ClassNotFoundException, SQLException {
 		String sentenciaSQL = "UPDATE perros SET puntuacionPerro = ? WHERE idPerro = ?";
 		try {
 			conectar();
@@ -166,25 +181,40 @@ public class Modelo {
 			desconectar(connection);
 		}
 	}
-	
-	
-	// Funciones Dueño
-	
-	public boolean puedeCrearDueno() throws ClassNotFoundException, SQLException {
-	    String sentenciaSQL = "SELECT COUNT(*) FROM duenos";
-	    try {
-	        conectar();
-	        ps = connection.prepareStatement(sentenciaSQL);
-	        rs = ps.executeQuery();
-	        if (rs.next()) {
-	            return rs.getInt(1) < 5;
-	        }
-	        return false;
-	    } finally {
-	        desconectar(connection);
-	    }
+
+	public byte[] obtenerImagenPerro(int idPerro) throws SQLException {
+		String sentenciaSQL = "SELECT imagenPerro FROM perros WHERE idPerro = ?";
+		try {
+			conectar();
+			ps = connection.prepareStatement(sentenciaSQL);
+			ps.setInt(1, idPerro);
+			rs = ps.executeQuery();
+			if (rs.next()) {
+				return rs.getBytes("imagenPerro");
+			}
+			return null;
+		} finally {
+			desconectar(connection);
+		}
 	}
-	
+
+	// Funciones Dueño
+
+	public boolean puedeCrearDueno() throws ClassNotFoundException, SQLException {
+		String sentenciaSQL = "SELECT COUNT(*) FROM duenos";
+		try {
+			conectar();
+			ps = connection.prepareStatement(sentenciaSQL);
+			rs = ps.executeQuery();
+			if (rs.next()) {
+				return rs.getInt(1) < 5;
+			}
+			return false;
+		} finally {
+			desconectar(connection);
+		}
+	}
+
 	public List<String> obtenerDuenos() throws ClassNotFoundException, SQLException {
 		String sentenciaSQL = "SELECT * FROM duenos";
 		List<String> listaDuenos = new ArrayList<>();
@@ -209,9 +239,8 @@ public class Modelo {
 		}
 
 	}
-	
-	public String buscarD(int idDueno)
-			throws ClassNotFoundException, SQLException {
+
+	public String buscarD(int idDueno) throws ClassNotFoundException, SQLException {
 
 		String resultado = null;
 		String sentenciaSQL = "SELECT * FROM duenos WHERE idDueno = ?";
@@ -226,7 +255,6 @@ public class Modelo {
 				resultado = (rs.getInt("idDueno") + " | " + rs.getString("nombreDueno") + " | "
 						+ rs.getString("apellidosDueno"));
 			}
-			
 
 		} finally {
 			desconectar(connection);
@@ -251,9 +279,8 @@ public class Modelo {
 		}
 
 	}
-	
-	public void modificarDueno(String nombre, String apellidos, int dueno)
-			throws ClassNotFoundException, SQLException {
+
+	public void modificarDueno(String nombre, String apellidos, int dueno) throws ClassNotFoundException, SQLException {
 
 		String sentenciaSQL = "UPDATE duenos SET nombreDueno = ?, apellidosDueno = ? WHERE idDueno = ?";
 
@@ -270,25 +297,23 @@ public class Modelo {
 		}
 
 	}
-	
-	public void borrarD (int idDueno) throws ClassNotFoundException, SQLException  {
+
+	public void borrarD(int idDueno) throws ClassNotFoundException, SQLException {
 		String sentenciaSQL = "DELETE FROM duenos WHERE idDueno = ?";
-		try
-		{	
+		try {
 			conectar();
 			ps = connection.prepareStatement(sentenciaSQL);
 			ps.setInt(1, idDueno);
 			ps.executeUpdate();
 
-		} finally
-		{
+		} finally {
 			desconectar(connection);
 
 		}
 	}
 
 	// Funciones Jueces
-	
+
 	public List<String> obtenerJueces() throws ClassNotFoundException, SQLException {
 		String sentenciaSQL = "SELECT * FROM jueces";
 		List<String> listaJueces = new ArrayList<>();
@@ -312,7 +337,7 @@ public class Modelo {
 		}
 
 	}
-	
+
 	public String buscarJ(int idJuez) throws ClassNotFoundException, SQLException {
 
 		String resultado = null;
@@ -328,7 +353,6 @@ public class Modelo {
 				resultado = (rs.getInt("idJuez") + " | " + rs.getString("nombreJuez") + " | "
 						+ rs.getString("apellidosJuez"));
 			}
-			
 
 		} finally {
 			desconectar(connection);
@@ -336,9 +360,8 @@ public class Modelo {
 		return resultado;
 
 	}
-	
-	public void modificarJuez(String nombre, String apellidos, int juez)
-			throws ClassNotFoundException, SQLException {
+
+	public void modificarJuez(String nombre, String apellidos, int juez) throws ClassNotFoundException, SQLException {
 
 		String sentenciaSQL = "UPDATE jueces SET nombreJuez = ?, apellidosJuez = ? WHERE idJuez = ?";
 
@@ -355,46 +378,44 @@ public class Modelo {
 		}
 
 	}
-	
+
 	// Concurso
 	public List<String> obtenerResultados() throws ClassNotFoundException, SQLException {
-	    String sentenciaSQL = "SELECT p.nombrePerro, p.puntuacionPerro, d.nombreDueno, d.apellidosDueno " +
-	                          "FROM perros p INNER JOIN duenos d ON p.idDuenoFK = d.idDueno " +
-	                          "ORDER BY p.puntuacionPerro DESC";
-	    List<String> listaResultados = new ArrayList<>();
-	    try {
-	        conectar();
-	        ps = connection.prepareStatement(sentenciaSQL);
-	        rs = ps.executeQuery();
-	        while (rs.next()) {
-	            listaResultados.add(rs.getString("nombrePerro") + " | " +
-	                rs.getFloat("puntuacionPerro") + " | " +
-	                rs.getString("nombreDueno") + " | " +
-	                rs.getString("apellidosDueno"));
-	        }
-	        return listaResultados;
-	    } finally {
-	        desconectar(connection);
-	    }
+		String sentenciaSQL = "SELECT p.nombrePerro, p.puntuacionPerro, d.nombreDueno, d.apellidosDueno FROM perros p INNER JOIN duenos d ON p.idDuenoFK = d.idDueno ORDER BY p.puntuacionPerro DESC";
+		List<String> listaResultados = new ArrayList<>();
+		try {
+			conectar();
+			ps = connection.prepareStatement(sentenciaSQL);
+			rs = ps.executeQuery();
+			while (rs.next()) {
+				listaResultados.add(rs.getString("nombrePerro") + " | " + rs.getFloat("puntuacionPerro") + " | "
+						+ rs.getString("nombreDueno") + " | " + rs.getString("apellidosDueno"));
+			}
+			return listaResultados;
+		} finally {
+			desconectar(connection);
+		}
 	}
 	
+	
+
 	// BD
 	public void reiniciarConcurso() throws ClassNotFoundException, SQLException {
-	    try {
-	        conectar();
-	        ps = connection.prepareStatement("SET FOREIGN_KEY_CHECKS = 0");
-	        ps.executeUpdate();
-	        ps = connection.prepareStatement("TRUNCATE TABLE perros");
-	        ps.executeUpdate();
-	        ps = connection.prepareStatement("TRUNCATE TABLE duenos");
-	        ps.executeUpdate();
-	        ps = connection.prepareStatement("SET FOREIGN_KEY_CHECKS = 1");
-	        ps.executeUpdate();
-	    } finally {
-	        desconectar(connection);
-	    }
+		try {
+			conectar();
+			ps = connection.prepareStatement("SET FOREIGN_KEY_CHECKS = 0");
+			ps.executeUpdate();
+			ps = connection.prepareStatement("TRUNCATE TABLE perros");
+			ps.executeUpdate();
+			ps = connection.prepareStatement("TRUNCATE TABLE duenos");
+			ps.executeUpdate();
+			ps = connection.prepareStatement("SET FOREIGN_KEY_CHECKS = 1");
+			ps.executeUpdate();
+		} finally {
+			desconectar(connection);
+		}
 	}
-	
+
 	public void reiniciarPuntuaciones() throws ClassNotFoundException, SQLException {
 		String sentenciaSQL = "UPDATE perros SET puntuacionPerro = NULL";
 
@@ -407,7 +428,6 @@ public class Modelo {
 			desconectar(connection);
 		}
 	}
-	
-	
+
 
 }

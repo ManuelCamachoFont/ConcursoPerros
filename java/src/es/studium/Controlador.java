@@ -1,13 +1,22 @@
 package es.studium;
 
+import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 
 public class Controlador extends WindowAdapter implements ActionListener, ItemListener {
 
@@ -23,11 +32,13 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 	private VistaJuecesMenu vjm;
 	private VistaJuezModificar vjmod;
 	private VistaConcurso vc;
+	private VistaConcursantes vcs;
 	private VistaFin vf;
 	private Modelo m;
 
 	private List<String> perrosConcurso;
 	private int indicePerro = 0;
+	private int indicePerroC = 0;
 	private float puntuacion = 0;
 	private boolean votadoJ1 = false;
 	private boolean votadoJ2 = false;
@@ -42,6 +53,8 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 		v.btnDuenos.addActionListener(this);
 		v.btnJueces.addActionListener(this);
 		v.btnIni.addActionListener(this);
+		v.btnLista.addActionListener(this);
+		v.btnReglas.addActionListener(this);
 		Utilidades.cursorBoton(v.btnPerros, v.btnDuenos, v.btnJueces, v.btnIni);
 		Utilidades.aplicarIcono("recursos/iconos/paw.png", v.ventana);
 
@@ -51,6 +64,9 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 	public void actionPerformed(ActionEvent e) {
 		// Botón para acceder al Menú de los Perros desde el Menú Principal
 		if (e.getSource().equals(v.btnPerros)) {
+			if (vpm != null) {
+				vpm.ventana.dispose();
+			}
 			vpm = new VistaPerrosMenu();
 			Utilidades.cursorEspera(vpm.ventana);
 			vpm.ventana.addWindowListener(this);
@@ -62,11 +78,15 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 			Utilidades.cursorEstandar(vpm.ventana);
 			// Botón para acceder a la creación de un Perro desde el Menú Perros
 		} else if (vpm != null && e.getSource().equals(vpm.btnCrear)) {
+			if (vpc != null) {
+				vpc.ventana.dispose();
+			}
 			vpm.ventana.dispose();
 			vpc = new VistaPerroCrear();
 			Utilidades.cursorEspera(vpc.ventana);
 			vpc.ventana.addWindowListener(this);
 			vpc.diaFeedback.addWindowListener(this);
+			vpc.btnImagen.addActionListener(this);
 			vpc.btnCrear.addActionListener(this);
 			Utilidades.cursorBoton(vpc.btnCrear);
 			Utilidades.aplicarIcono("recursos/iconos/paw.png", vpc.ventana);
@@ -84,8 +104,25 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 				System.err.println(se.getMessage());
 			}
 			Utilidades.cursorEstandar(vpc.ventana);
-			// Botón crear para crear un Nuevo Perro desde la ventana de creación de Perros
-		} else if (vpc != null && e.getSource().equals(vpc.btnCrear)) {
+
+		} else if (vpc != null && e.getSource().equals(vpc.btnImagen)) {
+			Utilidades.cursorEspera(vpc.ventana);
+			FileDialog fd = new FileDialog(vpc.ventana, "Seleccionar Imagen", FileDialog.LOAD);
+			fd.setFilenameFilter(new FilenameFilter() {
+				@Override
+				public boolean accept(File dir, String name) {
+					return name.endsWith(".png") || name.endsWith(".jpg") || name.endsWith(".jpeg");
+				}
+			});
+			fd.setVisible(true);
+			if (fd.getFile() != null) {
+				vpc.lblRutaImagen.setText(fd.getDirectory() + fd.getFile());
+			}
+			Utilidades.cursorEstandar(vpc.ventana);
+		}
+
+		// Botón crear para crear un Nuevo Perro desde la ventana de creación de Perros
+		else if (vpc != null && e.getSource().equals(vpc.btnCrear)) {
 			Utilidades.cursorEspera(vpc.ventana);
 			String nombre = vpc.txtNombre.getText();
 			String raza = vpc.txtRaza.getText();
@@ -93,19 +130,33 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 			String dueno = vpc.choDuenos.getSelectedItem();
 			String idDueno = dueno.split(" \\| ")[0];
 			String tamano = vpc.choTamano.getSelectedItem();
+			String rutaImagen = vpc.lblRutaImagen.getText();
+			String ruta;
+
+			if (rutaImagen.equals("Sin imagen seleccionada")) {
+				ruta = null;
+			} else {
+				ruta = rutaImagen;
+			}
+
 			try {
 				if (!m.puedeCrearPerro(Integer.parseInt(idDueno))) {
 					vpc.lblDialogo.setText("Este dueño ya tiene 3 perros registrados");
 				} else if (!nombre.isEmpty() && !raza.isEmpty() && !color.isEmpty()
 						&& vpc.choDuenos.getSelectedIndex() != 0 && vpc.choTamano.getSelectedIndex() != 0) {
 					try {
-						m.crearPerro(nombre, raza, tamano, color, idDueno);
-						vpc.lblDialogo.setText("La operación se ha realizado con éxito");
+						m.crearPerro(nombre, raza, tamano, color, ruta, idDueno);
+						vpc.lblDialogo.setText("La inscripción de " + nombre + " se ha realizado con éxito.");
+						vpc.txtNombre.setText("");
+						vpc.txtRaza.setText("");
+						vpc.txtColor.setText("");
 					} catch (ClassNotFoundException cnfe) {
 						vpc.lblDialogo.setText(cnfe.getMessage());
 
 					} catch (SQLException se) {
 						vpc.lblDialogo.setText(se.getMessage());
+					} catch (FileNotFoundException fnfe) {
+						vpc.lblDialogo.setText(fnfe.getMessage());
 					}
 				} else {
 					vpc.lblDialogo.setText("Por favor, rellene todos los campos");
@@ -126,11 +177,15 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 			// Botón para acceder a la modificación de un Perro desde el Menú Perros
 		} else if (vpm != null && e.getSource().equals(vpm.btnMod)) {
 			vpm.ventana.dispose();
+			if (vpmod != null) {
+				vpmod.ventana.dispose();
+			}
 			vpmod = new VistaPerroModificar();
 			Utilidades.cursorEspera(vpmod.ventana);
 			vpmod.ventana.addWindowListener(this);
 			vpmod.diaFeedback.addWindowListener(this);
 			vpmod.btnMod.addActionListener(this);
+			vpmod.btnImagen.addActionListener(this);
 			vpmod.choPerros.addItemListener(this);
 			Utilidades.cursorBoton(vpmod.btnMod);
 			Utilidades.aplicarIcono("recursos/iconos/paw.png", vpmod.ventana);
@@ -174,11 +229,20 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 				String perro = vpmod.choPerros.getSelectedItem();
 				int idDueno = Integer.parseInt(dueno.split(" \\| ")[0]);
 				int idPerro = Integer.parseInt(perro.split(" \\| ")[0]);
+				String rutaImagen = vpmod.lblRutaImagen.getText();
+				String ruta;
+
+				if (rutaImagen.equals("Sin imagen seleccionada")) {
+					ruta = null;
+				} else {
+					ruta = rutaImagen;
+				}
 				if (vpmod.choDuenos.getSelectedIndex() != 0 && vpmod.choPerros.getSelectedIndex() != 0
 						&& vpmod.choTamano.getSelectedIndex() != 0 && !nombre.isEmpty() && !raza.isEmpty()
 						&& !color.isEmpty()) {
-					m.modificarPerro(nombre, raza, tamano, color, idDueno, idPerro);
-					vpmod.lblDialogo.setText("La operación se ha realizado con éxito");
+					m.modificarPerro(nombre, raza, tamano, color, ruta, idDueno, idPerro);
+					vpmod.lblDialogo.setText("Se ha modificado a " + perro.split(" \\| ")[1] + ", ahora es " + nombre
+							+ " \\| " + raza + " \\| " + tamano + " \\| " + color + " \\| " + idDueno);
 				} else {
 					vpmod.lblDialogo.setText("Por favor, rellene todos los campos");
 				}
@@ -188,6 +252,8 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 				vpmod.lblDialogo.setText("Por favor, rellene todos los campos");
 			} catch (SQLException se) {
 				vpmod.lblDialogo.setText(se.getMessage());
+			} catch (FileNotFoundException fnfe) {
+				vpmod.lblDialogo.setText(fnfe.getMessage());
 			} finally {
 				vpmod.diaFeedback.pack();
 				vpmod.diaFeedback.setVisible(true);
@@ -227,9 +293,28 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 			vpmod.choPerros.select(0);
 			Utilidades.cursorEstandar(vpmod.ventana);
 
-			// Botón para acceder al borrado de los perros
-		} else if (vpm != null && e.getSource().equals(vpm.btnBorrar)) {
+		} else if (vpmod != null && e.getSource().equals(vpmod.btnImagen)) {
+			Utilidades.cursorEspera(vpmod.ventana);
+			FileDialog fd = new FileDialog(vpmod.ventana, "Seleccionar Imagen", FileDialog.LOAD);
+			fd.setFilenameFilter(new FilenameFilter() {
+				@Override
+				public boolean accept(File dir, String name) {
+					return name.endsWith(".png") || name.endsWith(".jpg") || name.endsWith(".jpeg");
+				}
+			});
+			fd.setVisible(true);
+			if (fd.getFile() != null) {
+				vpmod.lblRutaImagen.setText(fd.getDirectory() + fd.getFile());
+			}
+			Utilidades.cursorEstandar(vpmod.ventana);
+		}
+
+		// Botón para acceder al borrado de los perros
+		else if (vpm != null && e.getSource().equals(vpm.btnBorrar)) {
 			vpm.ventana.dispose();
+			if (vpb != null) {
+				vpb.ventana.dispose();
+			}
 			vpb = new VistaPerroBorrar();
 			Utilidades.cursorEspera(vpb.ventana);
 			vpb.ventana.addWindowListener(this);
@@ -265,8 +350,7 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 			try {
 				vpb.dialogo.dispose();
 				m.borrarP(idPerro);
-				vpb.lblDialogo
-						.setText("El borrado de " + vpb.choPerros.getSelectedItem() + " se ha realizado con éxito.");
+				vpb.lblDialogo.setText("Se ha eliminado a " + vpb.choPerros.getSelectedItem() + " del concurso.");
 				vpb.choPerros.removeAll();
 				vpb.choPerros.add("-- Seleccione un Perro --");
 				List<String> perros = m.obtenerPerros();
@@ -287,6 +371,9 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 		}
 		// Botón para acceder al Menú de los Dueños desde el Menú Principal
 		else if (e.getSource().equals(v.btnDuenos)) {
+			if (vdm != null) {
+				vdm.ventana.dispose();
+			}
 			vdm = new VistaDuenosMenu();
 			Utilidades.cursorEspera(vdm.ventana);
 			vdm.ventana.addWindowListener(this);
@@ -298,6 +385,9 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 			Utilidades.cursorEstandar(vdm.ventana);
 			// Botón para acceder a la creación de un Dueño desde el Menú Dueños
 		} else if (vdm != null && e.getSource().equals(vdm.btnCrear)) {
+			if (vdc != null) {
+				vdc.ventana.dispose();
+			}
 			vdm.ventana.dispose();
 			vdc = new VistaDuenoCrear();
 			Utilidades.cursorEspera(vdc.ventana);
@@ -315,11 +405,10 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 			try {
 				if (!m.puedeCrearDueno()) {
 					vdc.lblDialogo.setText("Ya hay 5 dueños registrados, no se pueden añadir más");
-				} else if (!nombre.isEmpty() && !apellidos.isEmpty()){
+				} else if (!nombre.isEmpty() && !apellidos.isEmpty()) {
 					m.crearDueno(nombre, apellidos);
-					vdc.lblDialogo.setText("La operación se ha realizado con éxito");
-				}
-				else {
+					vdc.lblDialogo.setText("La inscripción de " + nombre + apellidos + " se ha realizado con éxito.");
+				} else {
 					vdc.lblDialogo.setText("Por favor, rellene todos los campos");
 				}
 			} catch (ClassNotFoundException cnfe) {
@@ -336,6 +425,9 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 		}
 		// Botón para acceder a la modificación de un Dueño desde el Menú Dueños
 		else if (vdm != null && e.getSource().equals(vdm.btnMod)) {
+			if (vdmod != null) {
+				vdmod.ventana.dispose();
+			}
 			vdm.ventana.dispose();
 			vdmod = new VistaDuenoModificar();
 			Utilidades.cursorEspera(vdmod.ventana);
@@ -363,28 +455,27 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 
 		// Botón para llevar a cabo la modificación de un Dueño
 		else if (vdmod != null && e.getSource().equals(vdmod.btnMod)) {
+			Utilidades.cursorEspera(vdmod.ventana);
 			try {
-				Utilidades.cursorEspera(vdmod.ventana);
+				
 				String nombre = vdmod.txtNombre.getText();
 				String apellidos = vdmod.txtApellidos.getText();
 				String dueno = vdmod.choDuenos.getSelectedItem();
 				int idDueno = Integer.parseInt(dueno.split(" \\| ")[0]);
-				if (!nombre.isEmpty() && !apellidos.isEmpty() && vdmod.choDuenos.getSelectedIndex()!= 0) {
-				m.modificarDueno(nombre, apellidos, idDueno);
-				vdmod.lblDialogo.setText("La modificación de " + dueno + " se ha realizado con éxito");}
-				else {
+				if (!nombre.isEmpty() && !apellidos.isEmpty() && vdmod.choDuenos.getSelectedIndex() != 0) {
+					m.modificarDueno(nombre, apellidos, idDueno);
+					vdmod.lblDialogo.setText(
+							"Se ha modificado a " + dueno.split(" \\| ")[1] + " " + dueno.split(" \\| ")[2] + ", ahora es " + nombre + " " + apellidos);
+				} else {
 					vdmod.lblDialogo.setText("Por favor, rellene todos los campos");
 				}
 			} catch (ClassNotFoundException cnfe) {
 				vdmod.lblDialogo.setText(cnfe.getMessage());
 			} catch (NumberFormatException nfe) {
 				vdmod.lblDialogo.setText("Por favor, rellene todos los campos");
-			}catch (SQLException se) {
+			} catch (SQLException se) {
 				vdmod.lblDialogo.setText(se.getMessage());
-			} finally {
-				vdmod.diaFeedback.pack();
-				vdmod.diaFeedback.setVisible(true);
-			}
+			} 
 			vdmod.choDuenos.removeAll();
 			try {
 				vdmod.choDuenos.add("-- Seleccione un dueño --");
@@ -394,13 +485,19 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 				}
 
 			} catch (ClassNotFoundException cnfe) {
-				System.out.println(cnfe.getMessage());
+				System.err.println(cnfe.getMessage());
 			} catch (SQLException se) {
-				System.out.println(se.getMessage());
+				System.err.println(se.getMessage());
 			}
-
+			vdmod.diaFeedback.pack();
+			vdmod.diaFeedback.setVisible(true);
 			Utilidades.cursorEstandar(vdmod.ventana);
-		} else if (vdm != null && e.getSource().equals(vdm.btnBorrar)) {
+		}
+
+		else if (vdm != null && e.getSource().equals(vdm.btnBorrar)) {
+			if (vdb != null) {
+				vdb.ventana.dispose();
+			}
 			vdm.ventana.dispose();
 			vdb = new VistaDuenoBorrar();
 			Utilidades.cursorEspera(vdb.ventana);
@@ -419,9 +516,9 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 					vdb.choDuenos.add(listaDuenos);
 				}
 			} catch (ClassNotFoundException cnfe) {
-				System.out.println(cnfe.getMessage());
+				System.err.println(cnfe.getMessage());
 			} catch (SQLException se) {
-				System.out.println(se.getMessage());
+				System.err.println(se.getMessage());
 			}
 			Utilidades.cursorEstandar(vdb.ventana);
 
@@ -442,8 +539,7 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 				List<String> duenos = m.obtenerDuenos();
 				for (String d : duenos)
 					vdb.choDuenos.add(d);
-				vdb.lblDialogo.setText(
-						"El borrado de " + vdb.choDuenos.getSelectedItem() + " se ha llevado a cabo con éxito");
+				vdb.lblDialogo.setText("Se ha eliminado a " + vdb.choDuenos.getSelectedItem() + " del concurso");
 			} catch (ClassNotFoundException cnfe) {
 				vdb.lblDialogo.setText(cnfe.getMessage());
 			} catch (SQLException se) {
@@ -456,6 +552,9 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 		else if (vdb != null && e.getSource().equals(vdb.btnDiaNo)) {
 			vdb.dialogo.dispose();
 		} else if (e.getSource().equals(v.btnJueces)) {
+			if (vjm != null) {
+				vjm.ventana.dispose();
+			}
 			vjm = new VistaJuecesMenu();
 			Utilidades.cursorEspera(vjm.ventana);
 			vjm.ventana.addWindowListener(this);
@@ -466,6 +565,9 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 		}
 		// Botón para acceder al Menú de los Jueces desde el Menú Principal
 		else if (vjm != null && e.getSource().equals(vjm.btnMod)) {
+			if (vjmod != null) {
+				vjmod.ventana.dispose();
+			}
 			vjm.ventana.dispose();
 			vjmod = new VistaJuezModificar();
 			Utilidades.cursorEspera(vjmod.ventana);
@@ -499,16 +601,16 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 				String juez = vjmod.choJueces.getSelectedItem();
 				int idJuez = Integer.parseInt(juez.split(" \\| ")[0]);
 				if (!nombre.isEmpty() && !apellidos.isEmpty() && vjmod.choJueces.getSelectedIndex() != 0) {
-				m.modificarJuez(nombre, apellidos, idJuez);
-				vjmod.lblDialogo.setText("La modificación de " + juez + " se ha realizado con éxito");}
-				else {
+					m.modificarJuez(nombre, apellidos, idJuez);
+					vjmod.lblDialogo.setText("Se ha modificado a " + juez + ", ahora es " + nombre + " " + apellidos);
+				} else {
 					vjmod.lblDialogo.setText("Por favor, rellene todos los campos");
 				}
 			} catch (ClassNotFoundException cnfe) {
 				vjmod.lblDialogo.setText(cnfe.getMessage());
 			} catch (NumberFormatException nfe) {
 				vjmod.lblDialogo.setText("Por favor, rellene todos los campos");
-			}catch (SQLException se) {
+			} catch (SQLException se) {
 				vjmod.lblDialogo.setText(se.getMessage());
 			} finally {
 				vjmod.diaFeedback.pack();
@@ -537,6 +639,9 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 			votadoJ1 = false;
 			votadoJ2 = false;
 			votadoJ3 = false;
+			if (vc != null) {
+				vc.ventana.dispose();
+			}
 			vc = new VistaConcurso();
 			try {
 				perrosConcurso = m.obtenerPerros();
@@ -728,6 +833,9 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 		}
 
 		else if (vc != null && e.getSource().equals(vc.btnFin)) {
+			if (vf != null) {
+				vf.ventana.dispose();
+			}
 			vc.ventana.dispose();
 			vf = new VistaFin();
 			Utilidades.cursorEspera(vf.ventana);
@@ -745,9 +853,19 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 							+ datos[3] + "\n";
 					posicion++;
 				}
-				vf.txtResultados.setText(texto);
-				String[] ganador = resultados.get(0).split(" \\| ");
-				vf.lblGanador.setText(ganador[0] + " - " + ganador[2] + " " + ganador[3]);
+
+				float puntosTop1 = Float.parseFloat(resultados.get(0).split(" \\| ")[1]);
+				float puntosTop2 = Float.parseFloat(resultados.get(1).split(" \\| ")[1]);
+
+				if (puntosTop1 == puntosTop2) {
+					vf.txtResultados.setText(texto);
+					vf.lblGanador.setText("Se ha dado un empate");
+				} else {
+					String[] ganador = resultados.get(0).split(" \\| ");
+					vf.txtResultados.setText(texto);
+					vf.lblGanador.setText(ganador[0] + " - " + ganador[2] + " " + ganador[3]);
+				}
+
 			} catch (ClassNotFoundException cnfe) {
 				System.err.println(cnfe);
 			} catch (SQLException ex) {
@@ -758,7 +876,10 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 			Utilidades.cursorEstandar(vf.ventana);
 			vf.ventana.validate();
 			vf.ventana.repaint();
-		} else if (vf != null && e.getSource().equals(vf.btnReiniciar)) {
+		} else if(vf !=null && e.getSource().equals(vf.btnReiniciar)){
+			vf.dialogo.setVisible(true);
+		}
+		else if (vf != null && e.getSource().equals(vf.btnDiaSi)) {
 			try {
 				m.reiniciarConcurso();
 				vf.ventana.dispose();
@@ -773,11 +894,13 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 			} catch (SQLException se) {
 				System.err.println(se);
 			}
+		} else if(vf!= null && e.getSource().equals(vf.btnDiaNo)) {
+			vf.dialogo.dispose();
 		} else if (vf != null && e.getSource().equals(vf.btnReiniciarPunt)) {
 			try {
 				m.reiniciarPuntuaciones();
 				vf.ventana.dispose();
-				indicePerro = 0;
+				indicePerroC = 0;
 				puntuacion = 0;
 				votadoJ1 = false;
 				votadoJ2 = false;
@@ -788,8 +911,159 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 			} catch (SQLException se) {
 				System.err.println(se);
 			}
-		}
+		} else if (e.getSource().equals(v.btnLista)) {
+			if (vcs != null) {
+				vcs.ventana.dispose();
+			}
+			vcs = new VistaConcursantes();
+			Utilidades.cursorEspera(vcs.ventana);
+			try {
+				perrosConcurso = m.obtenerPerros();
+				if (!perrosConcurso.isEmpty()) {
+					String perro = perrosConcurso.get(indicePerroC);
+					vcs.lblNombre.setText("Nombre: " + perro.split(" \\| ")[1].trim());
+					int idPerro = Integer.parseInt(perro.split(" \\| ")[0].trim());
+					byte[] bytes = m.obtenerImagenPerro(idPerro);
+					if (bytes != null) {
+						vcs.imagen = ImageIO.read(new ByteArrayInputStream(bytes));
 
+					}
+					vcs.canvasImagen.repaint();
+				}
+			} catch (ClassNotFoundException cnfe) {
+
+				System.err.println(cnfe);
+				;
+			} catch (SQLException se) {
+
+				System.err.println(se);
+				;
+			} catch (IOException ioe) {
+
+				System.err.println(ioe);
+			}
+			vcs.ventana.addWindowListener(this);
+			vcs.btnSiguiente1.addActionListener(this);
+			vcs.btnSiguiente2.addActionListener(this);
+			vcs.btnVolver1.addActionListener(this);
+			vcs.btnVolver2.addActionListener(this);
+			Utilidades.aplicarIcono("recursos/iconos/paw.png", vcs.ventana);
+			Utilidades.cursorBoton(vcs.btnSiguiente1, vcs.btnSiguiente2, vcs.btnVolver1, vcs.btnVolver2);
+			Utilidades.cursorEstandar(vcs.ventana);
+		} else if (vcs != null
+				&& (e.getSource().equals(vcs.btnSiguiente1) || e.getSource().equals(vcs.btnSiguiente2))) {
+			indicePerroC = indicePerroC + 1;
+			try {
+				perrosConcurso = m.obtenerPerros();
+				if (!perrosConcurso.isEmpty()) {
+					String perro = perrosConcurso.get(indicePerroC);
+					vcs.lblNombre.setText("Nombre: " + perro.split(" \\| ")[1].trim());
+					int idPerro = Integer.parseInt(perro.split(" \\| ")[0].trim());
+					byte[] bytes = m.obtenerImagenPerro(idPerro);
+					if (bytes != null) {
+						vcs.imagen = ImageIO.read(new ByteArrayInputStream(bytes));
+
+					}
+					vcs.canvasImagen.repaint();
+				}
+			} catch (ClassNotFoundException cnfe) {
+
+				System.err.println(cnfe);
+				;
+			} catch (SQLException se) {
+
+				System.err.println(se);
+				;
+			} catch (IOException ioe) {
+
+				System.err.println(ioe);
+			}
+			vcs.btnVolver1.setVisible(false);
+			vcs.btnVolver2.setVisible(false);
+			vcs.btnSiguiente1.setVisible(false);
+			vcs.btnSiguiente2.setVisible(false);
+			if (indicePerroC == perrosConcurso.size() - 1) {
+				vcs.btnVolver2.setVisible(true);
+				vcs.btnVolver2.setEnabled(true);
+			} else if (indicePerroC == 0) {
+				vcs.btnSiguiente1.setVisible(true);
+				vcs.btnSiguiente1.setEnabled(true);
+			} else {
+				vcs.btnVolver1.setVisible(true);
+				vcs.btnVolver1.setEnabled(true);
+				vcs.btnSiguiente2.setVisible(true);
+				vcs.btnSiguiente2.setEnabled(true);
+			}
+			vcs.ventana.validate();
+			vcs.ventana.repaint();
+		} else if (vcs != null && (e.getSource().equals(vcs.btnVolver1) || e.getSource().equals(vcs.btnVolver2))) {
+			indicePerroC = indicePerroC - 1;
+			try {
+				perrosConcurso = m.obtenerPerros();
+				if (!perrosConcurso.isEmpty()) {
+					String perro = perrosConcurso.get(indicePerroC);
+					vcs.lblNombre.setText("Nombre: " + perro.split(" \\| ")[1].trim());
+					int idPerro = Integer.parseInt(perro.split(" \\| ")[0].trim());
+					byte[] bytes = m.obtenerImagenPerro(idPerro);
+					if (bytes != null) {
+						vcs.imagen = ImageIO.read(new ByteArrayInputStream(bytes));
+
+					}
+					vcs.canvasImagen.repaint();
+				}
+			} catch (ClassNotFoundException cnfe) {
+
+				System.err.println(cnfe);
+				;
+			} catch (SQLException se) {
+
+				System.err.println(se);
+				;
+			} catch (IOException ioe) {
+
+				System.err.println(ioe);
+			}
+			vcs.btnVolver1.setVisible(false);
+			vcs.btnVolver2.setVisible(false);
+			vcs.btnSiguiente1.setVisible(false);
+			vcs.btnSiguiente2.setVisible(false);
+			if (indicePerroC == perrosConcurso.size() - 1) {
+				vcs.btnVolver2.setVisible(true);
+				vcs.btnVolver2.setEnabled(true);
+			} else if (indicePerroC == 0) {
+				vcs.btnSiguiente1.setVisible(true);
+				vcs.btnSiguiente1.setEnabled(true);
+			} else {
+				vcs.btnVolver1.setVisible(true);
+				vcs.btnVolver1.setEnabled(true);
+				vcs.btnSiguiente2.setVisible(true);
+				vcs.btnSiguiente2.setEnabled(true);
+			}
+			vcs.ventana.validate();
+			vcs.ventana.repaint();
+		} else if (e.getSource().equals(v.btnReglas)) {
+			try {
+				File archivo = new File("ayuda.html");
+				String rutaAbsoluta = archivo.getAbsolutePath();
+				List<String> comando = new ArrayList<>();
+				comando.add("cmd");
+				comando.add("/c");
+				comando.add("start");
+				comando.add("msedge");
+				comando.add("--app=file:///" + rutaAbsoluta);
+
+				ProcessBuilder pb = new ProcessBuilder(comando);
+				pb.start();
+
+			} catch (Exception ex) {
+				System.err.println("Error al abrir la ayuda: " + ex.getMessage());
+				try {
+					java.awt.Desktop.getDesktop().browse(new File("ayuda.html").toURI());
+				} catch (Exception ex2) {
+					ex2.printStackTrace();
+				}
+			}
+		}
 	}
 
 	@Override
@@ -798,30 +1072,38 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 			System.exit(0);
 		} else if (vpm != null && e.getSource().equals(vpm.ventana)) {
 			vpm.ventana.dispose();
+			vpm = null;
 		} else if (vpc != null && e.getSource().equals(vpc.ventana)) {
 			vpc.ventana.dispose();
+			vpc = null;
 		} else if (vpc != null && e.getSource().equals(vpc.diaFeedback)) {
 			vpc.diaFeedback.dispose();
 		} else if (vpmod != null && e.getSource().equals(vpmod.ventana)) {
 			vpmod.ventana.dispose();
+			vpmod = null;
 		} else if (vpmod != null && e.getSource().equals(vpmod.diaFeedback)) {
 			vpmod.diaFeedback.dispose();
 		} else if (vpb != null && e.getSource().equals(vpb.ventana)) {
 			vpb.ventana.dispose();
+			vpb = null;
 		} else if (vpb != null && e.getSource().equals(vpb.dialogo)) {
 			vpb.dialogo.dispose();
 		} else if (vpb != null && e.getSource().equals(vpb.diaFeedback)) {
 			vpb.diaFeedback.dispose();
 		} else if (vdm != null && e.getSource().equals(vdm.ventana)) {
 			vdm.ventana.dispose();
+			vdm = null;
 		} else if (vdc != null && e.getSource().equals(vdc.ventana)) {
 			vdc.ventana.dispose();
+			vdc = null;
 		} else if (vdmod != null && e.getSource().equals(vdmod.ventana)) {
 			vdmod.ventana.dispose();
+			vdmod = null;
 		} else if (vdmod != null && e.getSource().equals(vdmod.diaFeedback)) {
 			vdmod.diaFeedback.dispose();
 		} else if (vdb != null && e.getSource().equals(vdb.ventana)) {
 			vdb.ventana.dispose();
+			vdb = null;
 		} else if (vdb != null && e.getSource().equals(vdb.dialogo)) {
 			vdb.dialogo.dispose();
 		} else if (vdb != null && e.getSource().equals(vdb.diaFeedback)) {
@@ -830,12 +1112,15 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 			vdc.diaFeedback.dispose();
 		} else if (vjm != null && e.getSource().equals(vjm.ventana)) {
 			vjm.ventana.dispose();
+			vjm = null;
 		} else if (vjmod != null && e.getSource().equals(vjmod.ventana)) {
 			vjmod.ventana.dispose();
+			vjmod = null;
 		} else if (vjmod != null && e.getSource().equals(vjmod.diaFeedback)) {
 			vjmod.diaFeedback.dispose();
 		} else if (vc != null && e.getSource().equals(vc.ventana)) {
 			vc.ventana.dispose();
+			vc = null;
 			indicePerro = 0;
 		} else if (vc != null && e.getSource().equals(vc.diaFeedback)) {
 			vc.diaFeedback.dispose();
@@ -850,7 +1135,11 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 			vc.diaJ3.dispose();
 		} else if (vf != null && e.getSource().equals(vf.ventana)) {
 			vf.ventana.dispose();
-
+			vf = null;
+		} else if (vcs != null && e.getSource().equals(vcs.ventana)) {
+			vcs.ventana.dispose();
+			vcs = null;
+			indicePerroC = 0;
 		}
 
 		if (vc != null && perrosConcurso != null && !vc.diaJ1.isVisible() && !vc.diaJ2.isVisible()
@@ -918,7 +1207,7 @@ public class Controlador extends WindowAdapter implements ActionListener, ItemLi
 				vjmod.txtApellidos.setText(apellidos);
 			} catch (ClassNotFoundException cnfe) {
 				System.out.println(cnfe);
-				;
+
 			} catch (SQLException se) {
 				System.out.println(se);
 			}

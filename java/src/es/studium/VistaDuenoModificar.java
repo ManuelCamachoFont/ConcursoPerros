@@ -29,7 +29,7 @@ public class VistaDuenoModificar {
 	GridBagLayout gridbag = new GridBagLayout();
 	GridBagConstraints gbc = new GridBagConstraints();
 	
-	Dialog diaFeedback = new Dialog(ventana, "Feedback", true);
+	Dialog diaFeedback = new Dialog(ventana, "Aviso", true);
 	Label lblDialogo = new Label("");
 	
 	Color blanco = new Color(255, 255, 255);
@@ -91,6 +91,8 @@ public class VistaDuenoModificar {
 		
 		diaFeedback.setLayout(new FlowLayout());
 		diaFeedback.setSize(250, 180);
+		diaFeedback.setBackground(negro);
+		lblDialogo.setForeground(blanco);
 		diaFeedback.add(lblDialogo);
 		diaFeedback.setLocationRelativeTo(null);
 		diaFeedback.setResizable(false);

@@ -3,6 +3,7 @@ package es.studium;
 import java.awt.Button;
 import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.Dialog;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Graphics;
@@ -42,6 +43,14 @@ public class VistaFin {
 	Color negro = new Color (30, 30, 30);
 	Color gris = new Color (90, 90, 90);
 	Color azul = new Color (80, 80, 255);
+	
+	Dialog dialogo = new Dialog(ventana, "¿Segur@?", true);
+	Label lblDia = new Label("Reiniciar el concurso eliminara todos los datos tanto de perros como dueños");
+	Label lblDia2 = new Label("¿Estás seguro de hacerlo?");
+	Button btnDiaSi = new Button("Si");
+	Button btnDiaNo = new Button("No");
+	
+	Font Serif = new Font ("Serif", 0, 16);
     
     public VistaFin() {
         ventana.setLayout(gridbag);
@@ -100,13 +109,47 @@ public class VistaFin {
         gbc.anchor = GridBagConstraints.EAST;
         btnReiniciar.setBackground(azul);
         btnReiniciar.setForeground(blanco);
-        ventana.add(btnReiniciar, gbc);
-        
-        
+        ventana.add(btnReiniciar, gbc); 
         
         ventana.setLocationRelativeTo(null);
         ventana.setResizable(false);
         ventana.setVisible(true);
+        
+        dialogo.setSize(450, 198);
+		dialogo.setLayout(gridbag);
+		dialogo.setBackground(negro);
+		dialogo.setFont(Utilidades.elegirFuente("fuentes/Merienda.ttf", 3, 16));
+
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.weightx = 1;
+		gbc.weighty = 1;
+		gbc.gridwidth = 4;
+		gbc.anchor = GridBagConstraints.CENTER;
+		lblDia.setFont(Serif);
+		lblDia.setForeground(blanco);
+		dialogo.add(lblDia, gbc);
+
+		gbc.gridy = 1;
+		lblDia2.setForeground(blanco);
+		dialogo.add(lblDia2, gbc);
+		gbc.gridwidth = 1;
+
+		gbc.gridx = 0;
+		gbc.gridy = 2;
+		gbc.anchor = GridBagConstraints.SOUTHWEST;
+		btnDiaSi.setBackground(new Color(180, 211, 178));
+		dialogo.add(btnDiaSi, gbc);
+
+		gbc.gridx = 3;
+		gbc.gridy = 2;
+		gbc.anchor = GridBagConstraints.SOUTHEAST;
+		btnDiaNo.setBackground(new Color(243, 70, 74));
+		dialogo.add(btnDiaNo, gbc);
+
+		dialogo.setLocationRelativeTo(null);
+		dialogo.setResizable(false);
+		dialogo.setVisible(false);
     }
     
 }

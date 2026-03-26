@@ -28,6 +28,9 @@ public class VistaPerroCrear {
 	TextField txtColor = new TextField (20);
 	Label lblDueno = new Label ("Dueño");
 	Choice choDuenos = new Choice();
+	Label lblImagen = new Label ("Imagen");
+	Button btnImagen = new Button ("Subir imagen");
+	Label lblRutaImagen = new Label("Imagen sin elegir");
 	
 	Button btnCrear = new Button("Inscribir");
 	
@@ -49,8 +52,8 @@ public class VistaPerroCrear {
 		ventana.setLayout(gridbag);
 		ventana.setFont(Utilidades.elegirFuente("fuentes/Merienda.ttf", 2, 16));
 		ventana.setBackground(negro);
-		ventana.setSize(400, 380);
-		gbc.insets = new Insets (10, 10, 10, 10);
+		ventana.setSize(440, 480);
+		gbc.insets = new Insets (10, 130, 10, 130);
 		
 		gbc.gridx = 0;
 		gbc.gridy = 0;
@@ -60,11 +63,13 @@ public class VistaPerroCrear {
 		gbc.gridwidth = 1;
 	
 		gbc.gridy = 1;
+		gbc.insets.set(10, 130, 10, 10);
 		lblNombre.setForeground(blanco);
 		ventana.add(lblNombre, gbc);
 		
 		gbc.gridx = 1;
 		gbc.gridy = 1;
+		gbc.insets.set(10, 10, 10, 130);
 		txtNombre.setFont(Serif);
 		txtNombre.setBackground(gris);
 		txtNombre.setForeground(blanco);
@@ -72,11 +77,13 @@ public class VistaPerroCrear {
 		
 		gbc.gridx = 0;
 		gbc.gridy = 2;
+		gbc.insets.set(10, 130, 10, 10);
 		lblRaza.setForeground(blanco);
 		ventana.add(lblRaza, gbc);
 		
 		gbc.gridx = 1;
 		gbc.gridy = 2;
+		gbc.insets.set(10, 10, 10, 130);
 		txtRaza.setFont(Serif);
 		txtRaza.setBackground(gris);
 		txtRaza.setForeground(blanco);
@@ -84,11 +91,13 @@ public class VistaPerroCrear {
 		
 		gbc.gridx = 0;
 		gbc.gridy = 3;
+		gbc.insets.set(10, 130, 10, 10);
 		lblTamano.setForeground(blanco);
 		ventana.add(lblTamano, gbc);
 		
 		gbc.gridx = 1;
 		gbc.gridy = 3;
+		gbc.insets.set(10, 10, 10, 130);
 		choTamano.add("-- Seleccione un Tamaño --");
 		choTamano.add("Pequeño");
 		choTamano.add("Mediano");
@@ -100,11 +109,13 @@ public class VistaPerroCrear {
 		
 		gbc.gridx = 0;
 		gbc.gridy = 4;
+		gbc.insets.set(10, 130, 10, 10);
 		lblColor.setForeground(blanco);
 		ventana.add(lblColor, gbc);
 		
 		gbc.gridx = 1;
 		gbc.gridy = 4;
+		gbc.insets.set(10, 10, 10, 130);
 		txtColor.setFont(Serif);
 		txtColor.setBackground(gris);
 		txtColor.setForeground(blanco);
@@ -112,11 +123,13 @@ public class VistaPerroCrear {
 		
 		gbc.gridx = 0;
 		gbc.gridy = 5;
+		gbc.insets.set(10, 130, 10, 10);
 		lblDueno.setForeground(blanco);
 		ventana.add(lblDueno, gbc);
 		
 		gbc.gridx = 1;
 		gbc.gridy = 5;
+		gbc.insets.set(10, 10, 10, 130);
 		choDuenos.setFont(Serif);
 		choDuenos.setBackground(gris);
 		choDuenos.setForeground(blanco);
@@ -124,10 +137,33 @@ public class VistaPerroCrear {
 		
 		gbc.gridx = 0;
 		gbc.gridy = 6;
+		gbc.insets.set(10, 130, 10, 10);
+		lblImagen.setForeground(blanco);
+		ventana.add(lblImagen, gbc);
+		
+		gbc.gridx = 0;
+		gbc.gridy = 7;
 		gbc.gridwidth = 2;
+		gbc.insets.set(10, 130, 10, 130);
+		lblRutaImagen.setForeground(blanco);
+		ventana.add(lblRutaImagen, gbc);
+		
+		gbc.gridx = 0;
+		gbc.gridy = 8;
+		gbc.gridwidth = 2;
+		gbc.insets.set(10, 130, 10, 130);
 		btnCrear.setForeground(blanco);
 		btnCrear.setBackground(azul);
 		ventana.add(btnCrear, gbc);
+		
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.weightx = 1;
+		gbc.insets.set(10, 10, 10, 130);
+		gbc.gridx = 1;
+		gbc.gridy = 6;
+		btnImagen.setBackground(gris);
+		btnImagen.setForeground(blanco);
+		ventana.add(btnImagen, gbc);
 		
 		diaFeedback.setLayout(new FlowLayout());
 		diaFeedback.setSize(250, 180);

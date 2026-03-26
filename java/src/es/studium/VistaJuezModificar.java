@@ -91,8 +91,8 @@ public class VistaJuezModificar {
 		
 		diaFeedback.setLayout(new FlowLayout());
 		diaFeedback.setSize(250, 180);
-		diaFeedback.setForeground(blanco);
-		lblDialogo.setBackground(negro);
+		lblDialogo.setForeground(blanco);
+		diaFeedback.setBackground(negro);
 		diaFeedback.add(lblDialogo);
 		diaFeedback.setLocationRelativeTo(null);
 		diaFeedback.setResizable(false);

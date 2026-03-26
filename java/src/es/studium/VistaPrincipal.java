@@ -22,6 +22,9 @@ public class VistaPrincipal {
 	Button btnDuenos = new Button("Menú - Dueños");
 	Button btnJueces = new Button("Menú - Jueces");
 	Button btnIni = new Button("Iniciar concurso");
+	
+	Button btnLista = new Button("Lista de concursantes");
+	Button btnReglas = new Button("Reglas del concurso");
 
 	Image imagen;
 	Canvas canvasImagen = new Canvas() {
@@ -87,6 +90,18 @@ public class VistaPrincipal {
 		btnIni.setBackground(dorado);
 		btnIni.setForeground(blanco);
 		ventana.add(btnIni, gbc);
+		
+		gbc.gridx = 0;
+		gbc.gridy = 5;
+		btnJueces.setBackground(azul);
+		btnJueces.setForeground(blanco);
+		ventana.add(btnLista, gbc);
+		
+		gbc.gridx = 1;
+		gbc.gridy = 5;
+		btnJueces.setBackground(azul);
+		btnJueces.setForeground(blanco);
+		ventana.add(btnReglas, gbc);
 
 		ventana.setLocationRelativeTo(null);
 		ventana.setResizable(false);

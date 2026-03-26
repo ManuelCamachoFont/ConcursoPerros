@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de Ayuda - Concurso de Perros</title>
+    <style type="text/css">
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 10pt;
+            color: #333333;
+            background-color: #FFFFFF;
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #main-container {
+            padding: 15px;
+        }
+
+        h1 {
+            font-size: 16pt;
+            color: #FFFFFF;
+            background-color: #0056b3;
+            padding: 10px;
+            margin-top: 0px;
+            margin-bottom: 15px;
+            border-bottom: 3px solid #003d80;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 13pt;
+            color: #0056b3;
+            border-bottom: 1px solid #CCCCCC;
+            padding-bottom: 5px;
+            margin-top: 20px;
+        }
+        h3 {
+            font-size: 11pt;
+            color: #666666;
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
+
+        p {
+            margin-top: 0px;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        ul {
+            margin-top: 0px;
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 5px;
+        }
+
+        .seccion-participante {
+            border: 1px solid #DDDDDD;
+            background-color: #F9F9F9;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+
+        #footer {
+            font-size: 8pt;
+            color: #999999;
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 10px;
+            border-top: 1px solid #EEEEEE;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Ayuda del Concurso Canino</h1>
+
+    <div id="main-container">
+
+        <p>Bienvenido al manual de ayuda oficial de la aplicación del concurso de perros. Aquí encontrará la información necesaria para gestionar el evento.</p>
+
+        <p>Dispondrá de varios menús para trabajar con los datos de los concursantes:
+            <ul>
+                <li><Strong>Perros</Strong></li>
+                <li><Strong>Dueños</Strong></li>
+                <li><Strong>Jueces</Strong></li>
+            </ul>
+            En los que podrá tanto agregar, como modificar o eliminar cada uno de ellos (Jueces sólo modificar si por cualquier motivo debe ceder su cargo).
+        </p>
+
+        <p>
+            A su vez podrá iniciar el concurso, el cuál, mostrará la lista de los participantes uno a uno y los jueces podrán dictar la puntuación que le adjudican a cada uno.
+        </p>
+
+        <a name="participantes"></a>
+        <h2>1. Participantes</h2>
+        <p>Este apartado describe cómo gestionar las inscripciones en el concurso. Habrá un máximo de 5 participantes en el concurso, los cuáles pueden competir con un límite de 3 perros cada uno.</p>
+        <p>Para inscribir un perro es necesario la existencia de su dueño anteriormente en la base de datos.</p>
+
+        <div class="seccion-participante">
+            <h3>1.1 Perros</h3>
+            <p>Sección destinada a los caninos. Para este concurso la categoría de tamaño es indiferente. Se van a tener en cuenta los siguientes datos:</p>
+            <ul>
+                <li><strong>Nombre del Perro:</strong> Nombre oficial para el registro.</li>
+                <li><strong>Raza:</strong> Seleccionar la raza correspondiente.</li>
+                <li><strong>Tamaño:</strong> (Grande, pequeño o mediano).</li>
+                <li><strong>Color:</strong> Descripción de los colores del pelaje.</li>
+                <li><strong>Fotografía:</strong> Imagen para identificación.</li>
+            </ul>
+        </div>
+
+        <div class="seccion-participante">
+            <h3>1.2 Dueños</h3>
+            <p>Sección para la información de los dueños. Dispondremos de los siguientes datos:</p>
+            <ul>
+                <li><strong>Nombre:</strong> Del propietario principal.</li>
+                <li><strong>Apellidos:</strong> Para distinguir entre personas.</li>
+            </ul>
+        </div>
+
+        <a name="jueces"></a>
+        <h2>2. Jueces</h2>
+        <p>En esta sección se gestiona el panel de expertos encargados de evaluar.</p>
+        <p>Los jueces deben estar acreditados y se clasifican por su cargo. El concurso dispone de tres jueces, el presidente de mesa y dos adjuntos.</p>
+
+        <a name="puntuacion"></a>
+        <h2>3. Puntuación y Concurso</h2>
+        <p>Detalle del sistema de evaluación del concurso:</p>
+        <p>
+            Cada Juez dispondrá de la opción de votar cada perro cuando se inicie el concurso. Las puntuaciones constan de un número comprendido entre el 0 y el 10 (incluyendo dos decimales) que serán sumados entre los tres Jueces, por lo que la máxima puntuación alcanzable es 30.
+        </p>
+        <p>
+            En caso de empate el concurso se repetirá con los perros empatados hasta que haya un ganador.
+        </p>
+
+        <a name="premio"></a>
+        <h2>4. Premio</h2>
+        <p>Al ganador del concurso se le gratificará con una suma de 500€ y automáticamente se clasificará a un concurso internacional que se llevará a cabo en el próximo 2027.</p>
+        <p>Además, se le sumistrará durante todo un año con productos de alimentación y de belleza de Royal Manin.</p>
+
+        <div id="footer">
+            © 2026 Manuel Camacho Font<br>
+            Todos los derechos reservados.
+        </div>
+
+    </div>
+
+</body>
+</html>
